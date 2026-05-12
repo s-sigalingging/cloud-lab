@@ -4,10 +4,10 @@ resource "google_compute_firewall" "pfsense_management" {
 
   allow {
     protocol = "tcp"
-    ports    = ["443", "22"] # WebGUI and SSH
+    ports    = ["443", "22"] 
   }
 
   # Replace with YOUR actual public IP for safety
-  source_ranges = ["0.0.0.0/0"] 
+  source_ranges = ["103.26.188.5/32"] 
   target_tags   = ["pfsense-firewall"]
 }
