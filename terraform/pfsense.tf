@@ -22,7 +22,6 @@ resource "google_compute_instance" "pfsense_gateway" {
 
   boot_disk {
     initialize_params {
-      # This links the VM to the custom image above
       image = google_compute_image.pfsense_custom.self_link
     }
   }
