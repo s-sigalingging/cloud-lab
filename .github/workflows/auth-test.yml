@@ -19,7 +19,7 @@ jobs:
         uses: 'google-github-actions/auth@v3'
         with:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: 'github-runner-sa@${{ vars.GCP_PROJECT_ID }}.iam.gserviceaccount.com'
+          service_account: 'gitlab-runner@${{ vars.GCP_PROJECT_ID }}.iam.gserviceaccount.com'
 
       - name: 'Test Command'
         run: 'gcloud compute regions list'
