@@ -4,5 +4,5 @@ resource "google_compute_route" "app_to_pfsense" {
   network                = google_compute_network.trusted_vpc.id
   next_hop_instance      = google_compute_instance.pfsense_builder.id
   next_hop_instance_zone = var.zone
-  priority               = 100
+  priority               = 100 
 }
