@@ -37,5 +37,5 @@ resource "google_compute_instance" "pfsense_gateway" {
 
   metadata = {
     serial-port-enable = "1" 
-  }
+  } 
 }
