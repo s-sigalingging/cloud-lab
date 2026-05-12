@@ -30,6 +30,8 @@ resource "google_compute_instance" "pfsense_gateway" {
   boot_disk {
     initialize_params {
       image = google_compute_image.pfsense_custom.self_link
+      size  = 20  
+      type  = "pd-ssd"
     }
   }
   metadata = {
