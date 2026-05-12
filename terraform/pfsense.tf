@@ -20,6 +20,13 @@ resource "google_compute_instance" "pfsense_gateway" {
     subnetwork = google_compute_subnetwork.app_subnet.id
   }
 
+  scheduling {
+    preemptible       = true            
+    automatic_restart = false           
+    provisioning_model = "SPOT"         
+    instance_termination_action = "STOP" 
+  }
+
   boot_disk {
     initialize_params {
       image = google_compute_image.pfsense_custom.self_link
