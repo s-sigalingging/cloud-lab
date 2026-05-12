@@ -1,5 +1,8 @@
 name: GCP Auth Test
-on: [push]
+on:
+push:
+    paths:
+      - '.github/workflows/auth-test.yml'
 
 jobs:
   test-auth:
