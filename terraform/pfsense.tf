@@ -5,34 +5,27 @@ resource "google_compute_disk" "pfsense_target_disk" {
   size  = 20
 }
 
-resource "google_compute_instance" "pfsense_builder" {
-  name         = "pfsense-builder" # New name in GCP
+resource "google_compute_instance" "pfsense_gateway" {
+  name         = "pfsense-gateway"
   machine_type = "e2-medium"
   zone         = var.zone
   can_ip_forward = true 
   tags         = ["pfsense-firewall"]
 
   boot_disk {
-    initialize_params {
-      image = google_compute_image.pfsense_custom.self_link
-    }
-  }
-
-
-  attached_disk {
     source      = google_compute_disk.pfsense_target_disk.id
-    device_name = "target-disk"
+    auto_delete = false 
   }
 
   network_interface {
     network    = google_compute_network.untrusted_vpc.id
     subnetwork = google_compute_subnetwork.dmz_subnet.id
-    access_config {}
+    access_config {} # WAN Side
   }
 
   network_interface {
     network    = google_compute_network.trusted_vpc.id
-    subnetwork = google_compute_subnetwork.app_subnet.id
+    subnetwork = google_compute_subnetwork.app_subnet.id 
   }
 
   scheduling {
