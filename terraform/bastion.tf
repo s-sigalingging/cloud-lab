@@ -2,6 +2,7 @@ resource "google_compute_instance" "bastion_server" {
   name         = "bastion-server"
   machine_type = "e2-micro"
   zone         = var.zone
+  tags         = ["bastion"]
 
   boot_disk {
     initialize_params {
