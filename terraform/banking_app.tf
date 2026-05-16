@@ -2,6 +2,7 @@ resource "google_compute_instance" "banking_app_server" {
   name         = "banking-app-server"
   machine_type = "e2-micro"
   zone         = var.zone
+  can_ip_forward = true
 
   boot_disk {
     initialize_params {
