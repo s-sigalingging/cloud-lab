@@ -16,13 +16,6 @@ resource "google_compute_instance" "banking_app_server" {
     subnetwork = google_compute_subnetwork.app_subnet.id
   }
 
-  scheduling {
-    preemptible                 = true            
-    automatic_restart           = false           
-    provisioning_model          = "SPOT"         
-    instance_termination_action = "STOP" 
-  }
-
   metadata = {
     serial-port-enable = "1"
   }
