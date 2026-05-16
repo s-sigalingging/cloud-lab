@@ -1,5 +1,5 @@
-resource "google_compute_instance" "banking_app_server" {
-  name         = "banking-app-server"
+resource "google_compute_instance" "bastion_server" {
+  name         = "bastion-server"
   machine_type = "e2-micro"
   zone         = var.zone
 
@@ -14,6 +14,13 @@ resource "google_compute_instance" "banking_app_server" {
   network_interface {
     network    = google_compute_network.trusted_vpc.id
     subnetwork = google_compute_subnetwork.app_subnet.id
+  }
+
+  scheduling {
+    preemptible                 = true            
+    automatic_restart           = false           
+    provisioning_model          = "SPOT"         
+    instance_termination_action = "STOP" 
   }
 
   metadata = {
