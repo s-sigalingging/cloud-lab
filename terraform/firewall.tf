@@ -8,7 +8,7 @@ resource "google_compute_firewall" "pfsense_management" {
   }
 
   # Replace with YOUR actual public IP for safety
-  source_ranges = ["103.26.188.5/32"] 
+  source_ranges = ["103.26.188.5/32","103.165.124.44"] 
   target_tags   = ["pfsense-firewall"]
 }
 
