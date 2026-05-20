@@ -9,3 +9,7 @@ output "bucket_name" {
 output "service_account_email" {
   value       = google_service_account.app_sa.email
 }
+
+output "registry_url" {
+  value       = "${google_artifact_registry_repository.bank_app_repo.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.bank_app_repo.repository_id}"
+}
