@@ -15,7 +15,6 @@ resource "google_compute_instance" "bastion_server" {
   network_interface {
     network    = google_compute_network.trusted_vpc.id
     subnetwork = google_compute_subnetwork.app_subnet.id
-    access_config {}
   }
 
   scheduling {
