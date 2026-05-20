@@ -1,6 +1,6 @@
 resource "google_service_account" "app_sa" {
   account_id   = "banking-app-runner"
-  display_name = "Workload Identity Service Account for Banking Application"
+  display_name = "Workload Identity Service Account"
 }
 
 resource "google_secret_manager_secret_iam_member" "secret_reader" {

@@ -15,9 +15,8 @@ resource "google_artifact_registry_repository" "bank_app_repo" {
   }
 }
 
-resource "google_artifact_registry_repository_iam_member" "repo_reader" {
-  location   = google_artifact_registry_repository.bank_app_repo.location
-  repository = google_artifact_registry_repository.bank_app_repo.name
-  role       = "roles/artifactregistry.reader"
-  member     = "serviceAccount:${google_service_account.app_sa.email}"
+resource "google_project_iam_member" "artifact_repo_reader" {
+  project = var.project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${google_service_account.app_sa.email}"
 }
