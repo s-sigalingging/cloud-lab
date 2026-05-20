@@ -7,7 +7,7 @@ output "bucket_name" {
 }
 
 output "service_account_email" {
-  value       = google_service_account.app_sa.email
+  value       = google_service_account.app_sa.email 
 }
 
 output "registry_url" {
