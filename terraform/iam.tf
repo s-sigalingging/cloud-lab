@@ -20,4 +20,4 @@ resource "google_service_account_iam_member" "github_actions_workload_identity" 
   role               = "roles/iam.serviceAccountTokenCreator"
   
   member = "principalSet://iam.googleapis.com/projects/319432675110/locations/global/workloadIdentityPools/github-pool/attribute.repository/s-sigalingging/cloud-lab"
-}
+} 
