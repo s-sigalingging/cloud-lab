@@ -1,5 +1,5 @@
 resource "google_storage_bucket" "asset_bucket" {
-  name          = "secure-bank-assets-${var.project_id}" 
+  name          = "lab-assets" 
   location      = "ASIA-SOUTHEAST2"                      
   force_destroy = true
 
