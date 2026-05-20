@@ -14,3 +14,10 @@ resource "google_storage_bucket_iam_member" "bucket_reader" {
   role   = "roles/storage.objectViewer"
   member = "serviceAccount:${google_service_account.app_sa.email}"
 }
+
+resource "google_service_account_iam_member" "github_actions_workload_identity" {
+  service_account_id = google_service_account.app_sa.name 
+  role               = "roles/iam.serviceAccountTokenCreator"
+  
+  member = "principalSet://iam.googleapis.com/projects/319432675110/locations/global/workloadIdentityPools/github-pool/attribute.repository/s-sigalingging/cloud-lab"
+}
