@@ -1,5 +1,5 @@
 resource "google_artifact_registry_repository" "bank_app_repo" {
-  location      = "ASIA-SOUTHEAST2"
+  location      = "asia-southeast2"
   repository_id = "lab-images"
   description   = "Docker Repository for Lab"
   format        = "DOCKER"
