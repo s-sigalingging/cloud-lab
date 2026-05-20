@@ -1,5 +1,5 @@
 resource "google_service_account" "app_sa" {
-  account_id   = "banking-app-runner"
+  account_id   = "gitlab-runner"
   display_name = "Workload Identity Service Account"
 }
 
