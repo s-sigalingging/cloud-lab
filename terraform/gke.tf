@@ -9,7 +9,7 @@ resource "google_container_cluster" "primary" {
 
   # Turn off the default node pool so we can build a customized one right below it
   remove_default_node_pool = true
-  initial_node_count       = 1
+  initial_node_count       = 2
 
   # Enforce Network Policy (Enables internal cluster firewall rules)
   network_policy {
