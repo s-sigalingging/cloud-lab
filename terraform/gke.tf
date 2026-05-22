@@ -2,6 +2,7 @@
 resource "google_container_cluster" "primary" {
   name     = "s-shield-core-cluster"
   location = "asia-southeast2-a" # Keep it in your same zone to prevent cross-zone networking fees
+  deletion_protection = false
 
   # Link it directly to your existing VPC network infrastructure
   network    = google_compute_network.trusted_vpc.name
