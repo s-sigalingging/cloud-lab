@@ -39,6 +39,8 @@ resource "google_container_node_pool" "primary_nodes" {
   node_config {
     preemptible  = true 
     machine_type = "e2-medium"
+    disk_size_gb = 30
+    disk_type    = "pd-standard"
 
     # Attach your secure application runner identity to the nodes
     service_account = "gitlab-runner@project-3ad3e57a-ebe0-4fe5-b00.iam.gserviceaccount.com"
