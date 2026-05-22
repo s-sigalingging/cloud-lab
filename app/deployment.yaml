@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banking-dashboard
+  labels:
+    app: banking-dashboard
+spec:
+  replicas: 2 
+  selector:
+    matchLabels:
+      app: banking-dashboard
+  template:
+    metadata:
+      labels:
+        app: banking-dashboard
+    spec:
+      containers:
+      - name: dashboard-container
+        image: asia-southeast2-docker.pkg.dev/project-3ad3e57a-ebe0-4fe5-b00/lab-images/banking-dashboard:latest
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: banking-dashboard-service
+spec:
+  type: ClusterIP 
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: banking-dashboard

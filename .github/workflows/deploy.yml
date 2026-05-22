@@ -56,3 +56,15 @@ jobs:
             ${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Authenticate to GKE
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: 's-shield-core-cluster'
+          location: 'asia-southeast2-a'
+
+      - name: Deploy to GKE Cluster
+        run: |
+          kubectl apply -f ./app/deployment.yaml
+          kubectl set image deployment/banking-dashboard dashboard-container=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          kubectl rollout status deployment/banking-dashboard
