@@ -40,6 +40,11 @@ jobs:
       - name: Authorize Docker for Artifact Registry
         run: |
           gcloud auth configure-docker ${{ env.REGISTRY_LOCATION }}-docker.pkg.dev --quiet
+
+      - name: Check Working Directory
+        script:
+          - pwd
+          - ls -lah    
       
       - name: Build and Push Container
         uses: docker/build-push-action@v5
