@@ -13,7 +13,7 @@ resource "google_container_cluster" "primary" {
 
   # Enforce Network Policy (Enables internal cluster firewall rules)
   network_policy {
-    enabled = true
+    enabled = true 
   }
 
   # Make it a private cluster so it doesn't get a public IP address on the internet
