@@ -1,4 +1,4 @@
-from flask import Flask, render_code, request, jsonify
+from flask import Flask, render_template_string, request, jsonify
 import os
 import socket
 
@@ -8,16 +8,16 @@ app = Flask(__name__)
 @app.route('/', methods=['GET'])
 def index():
     pod_name = socket.gethostname()
-    return f"""
+    return render_template_string("""
     <html>
         <head>
             <title>Secure GCP Mobile Banking</title>
             <style>
-                body {{ font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f6f9; }}
-                .card {{ background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 400px; }}
-                h1 {{ color: #0A58CA; }}
-                .balance {{ font-size: 24px; color: #198754; font-weight: bold; margin: 20px 0; }}
-                .footer {{ color: #6c757d; font-size: 12px; margin-top: 20px; }}
+                body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f6f9; }
+                .card { background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 400px; }
+                h1 { color: #0A58CA; }
+                .balance { font-size: 24px; color: #198754; font-weight: bold; margin: 20px 0; }
+                .footer { color: #6c757d; font-size: 12px; margin-top: 20px; }
             </style>
         </head>
         <body>
@@ -26,11 +26,11 @@ def index():
                 <p><strong>Account Holder:</strong> Silver Sigalingging</p>
                 <div class="balance">Wallet Balance: $5,240.50</div>
                 <p>Status: <span style="color: green; font-weight: bold;">CONNECTED TO SECURE VPC</span></p>
-                <div class="footer">Served by Cluster Node Host: {pod_name}</div>
+                <div class="footer">Served by Cluster Node Host: {{ pod_name }}</div>
             </div>
         </body>
     </html>
-    """
+    """, pod_name=pod_name)
 
 # API Endpoint simulating our Switching Middleware router
 @app.route('/api/v1/transfer', methods=['POST'])
