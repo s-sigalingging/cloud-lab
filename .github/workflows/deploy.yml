@@ -43,6 +43,7 @@ jobs:
         run: |
           ls -lah
 
+      # CONTEXT FIXED: Pointing back to ./app where your code and Dockerfile live together
       - name: Build and Push Container
         uses: docker/build-push-action@v5
         with:
