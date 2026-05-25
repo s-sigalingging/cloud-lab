@@ -26,4 +26,4 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8080 8081 8082
 
-CMD ["sh", "-c", "python app/${APP_SCRIPT}"]
+CMD ["sh", "-c", "python app/${APP_SCRIPT}"] 
