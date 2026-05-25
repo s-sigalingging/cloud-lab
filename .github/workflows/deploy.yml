@@ -12,8 +12,8 @@ permissions:
 env:
   PROJECT_ID: "project-3ad3e57a-ebe0-4fe5-b00" 
   REGISTRY_LOCATION: "asia-southeast2" 
-  REGISTRY_URL: "asia-southeast2-docker.pkg.dev/project-3ad3e57a-ebe0-4fe5-b00/lab-images"
-  IMAGE_NAME: "banking-dashboard"
+  REGISTRY_URL: "asia-southeast2-docker.pkg.dev/project-3ad3e57a-ebe0-4fe5-b00/secure-banking-images"
+  IMAGE_NAME: "banking"
 
 jobs:
   build-and-ship:
@@ -25,7 +25,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      
       - name: Authenticate to Google Cloud
         id: auth
         uses: google-github-actions/auth@v2
@@ -33,7 +32,6 @@ jobs:
           workload_identity_provider: 'projects/319432675110/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
           service_account: 'gitlab-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com'
 
-      
       - name: Set up gcloud CLI & Configure Docker
         uses: google-github-actions/setup-gcloud@v2
 
@@ -48,8 +46,8 @@ jobs:
       - name: Build and Push Container
         uses: docker/build-push-action@v5
         with:
-          context: ./app
-          file: ./app/Dockerfile
+          context: .
+          file: ./Dockerfile
           push: true
           tags: |
             ${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
@@ -65,6 +63,15 @@ jobs:
 
       - name: Deploy to GKE Cluster
         run: |
-          kubectl apply -f ./app/deployment.yaml
-          kubectl set image deployment/banking-dashboard dashboard-container=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          kubectl rollout status deployment/banking-dashboard
+          # Apply the entire custom decoupled manifest directory to the 'app' namespace
+          kubectl apply -f ./kubernetes-manifest/
+          
+          # Force rollouts using the freshly minted specific commit SHA image tags for precision tracking
+          kubectl set image deployment/frontend-channel frontend=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          kubectl set image deployment/payment-switch switch=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          kubectl set image deployment/core-ledger ledger=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          
+          # Monitor rollouts until everything transitions to successfully active
+          kubectl rollout status deployment/frontend-channel
+          kubectl rollout status deployment/payment-switch
+          kubectl rollout status deployment/core-ledger

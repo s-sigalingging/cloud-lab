@@ -18,14 +18,14 @@ HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>S-Shield Neobank Dashboard</title>
+    <title>Banking Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
 </head>
 <body class="bg-light">
     <div class="container py-5">
         <div class="card shadow-sm mx-auto" style="max-width: 600px;">
             <div class="card-header bg-dark text-white d-flex justify-content-between align-content-center">
-                <h4 class="mb-0">🛡️ S-Shield Neobank Core</h4>
+                <h4 class="mb-0">Banking</h4>
                 <span class="badge bg-success align-self-center">Live Cluster Sync</span>
             </div>
             <div class="card-body text-center p-4">
