@@ -1,4 +1,4 @@
-from flask import Flask, render_init_string, request, jsonify, redirect, url_for
+from flask import Flask, render_template_string, request, jsonify, redirect, url_for
 import requests
 import os
 import logging
@@ -67,7 +67,7 @@ def index():
     except requests.exceptions.RequestException:
         logging.error("[FRONTEND CRITICAL] Could not query backend ledger for wallet balances.")
 
-    return render_init_string(HTML_TEMPLATE, account_id=DEFAULT_ACCOUNT, balance=balance, hostname=hostname)
+    return render_template_string(HTML_TEMPLATE, account_id=DEFAULT_ACCOUNT, balance=balance, hostname=hostname)
 
 @app.route("/transfer", methods=["POST"])
 def transfer():
