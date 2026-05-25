@@ -67,11 +67,11 @@ jobs:
           kubectl apply -f ./kubernetes-manifest/
           
           # Force rollouts using the freshly minted specific commit SHA image tags for precision tracking
-          kubectl set image deployment/frontend-channel frontend=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          kubectl set image deployment/payment-switch switch=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          kubectl set image deployment/core-ledger ledger=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          kubectl set image deployment/frontend-channel frontend=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -n app
+          kubectl set image deployment/payment-switch switch=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -n app
+          kubectl set image deployment/core-ledger ledger=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -n app
           
           # Monitor rollouts until everything transitions to successfully active
-          kubectl rollout status deployment/frontend-channel
-          kubectl rollout status deployment/payment-switch
-          kubectl rollout status deployment/core-ledger
+          kubectl rollout status deployment/frontend-channel -n app
+          kubectl rollout status deployment/payment-switch -n app
+          kubectl rollout status deployment/core-ledger -n app
