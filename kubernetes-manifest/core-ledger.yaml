@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-ledger
+  namespace: app
+spec:
+  replicas: 1  # Locked to 1 for in-memory state consistency
+  selector:
+    matchLabels:
+      app: core-ledger
+  template:
+    metadata:
+      labels:
+        app: core-ledger
+    spec:
+      containers:
+      - name: ledger
+        image: asia-southeast2-docker.pkg.dev/project-3ad3e57a/secure-banking-images/neobank-core:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8082
+        env:
+        - name: APP_SCRIPT
+          value: "core-ledger.py"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: core-ledger-service
+  namespace: app
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8082
+    targetPort: 8082
+  selector:
+    app: core-ledger
