@@ -16,7 +16,7 @@ spec:
       containers:
       - name: frontend
         # Make sure this matches your exact Artifact Registry path
-        image: asia-southeast2-docker.pkg.dev/project-3ad3e57a/secure-banking-images/neobank-core:latest
+        image: asia-southeast2-docker.pkg.dev/project-3ad3e57a/lab-images/banking:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
