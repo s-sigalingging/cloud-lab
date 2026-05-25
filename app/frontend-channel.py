@@ -15,41 +15,49 @@ DEFAULT_ACCOUNT = "ACC-771B0355"
 
 # The HTML Template render engine string matching your previous dashboard dashboard layout
 HTML_TEMPLATE = """
-<!DOCTYPE html>
 <html>
-<head>
-    <title>Banking Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-</head>
-<body class="bg-light">
-    <div class="container py-5">
-        <div class="card shadow-sm mx-auto" style="max-width: 600px;">
-            <div class="card-header bg-dark text-white d-flex justify-content-between align-content-center">
-                <h4 class="mb-0">Banking</h4>
-                <span class="badge bg-success align-self-center">Live Cluster Sync</span>
-            </div>
-            <div class="card-body text-center p-4">
-                <p class="text-muted text-uppercase small mb-1">Secure Account ID</p>
-                <h5 class="text-secondary mb-4">{{ account_id }}</h5>
-                <h1 class="display-4 text-dark fw-bold mb-4">${{ "%.2f"|format(balance) }}</h1>
-                
-                <hr class="my-4">
-                
-                <form action="/transfer" method="POST" class="text-start">
-                    <label class="form-label text-muted small">Execute Instant Money Transfer</label>
-                    <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input type="number" step="0.01" name="amount" class="form-control" placeholder="0.00" required>
-                        <button class="btn btn-primary" type="submit">Send Authorization</button>
-                    </div>
-                </form>
-            </div>
-            <div class="card-footer bg-white text-muted text-center small py-3">
-                Served by Cluster Node Host: <span class="font-monospace fw-bold">{{ hostname }}</span>
-            </div>
+    <head>
+        <title>Secure GCP Mobile Banking</title>
+        <style>
+            body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f6f9; }
+            .card { background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 400px; }
+            h1 { color: #0A58CA; }
+            .balance { font-size: 32px; color: #212529; font-weight: bold; margin: 20px 0; }
+            .footer { color: #6c757d; font-size: 12px; margin-top: 20px; font-family: monospace; }
+            .input-group { text-align: left; margin-bottom: 15px; }
+            .input-group label { display: block; font-size: 12px; color: #6c757d; margin-bottom: 5px; font-weight: bold; }
+            .input-group input { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; box-sizing: border-box; }
+            .btn { background-color: #0D6EFD; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
+            .btn:hover { background-color: #0b5ed7; }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <div style="background: #212529; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; display: inline-block; float: right; font-weight: bold;">Live Cluster Sync</div>
+            <div style="clear: both;"></div>
+            <p style="color: #6c757d; margin-bottom: 2px; font-size: 12px; font-weight: bold; letter-spacing: 0.5px;">SECURE ACCOUNT ID</p>
+            <h3 style="margin-top: 0; color: #495057;">{{ account_id }}</h3>
+            
+            <div class="balance">${{ "%.2f"|format(balance) }}</div>
+            
+            <hr style="border: 0; border-top: 1px solid #dee2e6; margin: 20px 0;">
+            
+            <form action="/transfer" method="POST">
+                <div class="input-group">
+                    <label>DESTINATION ACCOUNT ID</label>
+                    <input type="text" name="destination_account" placeholder="e.g., 111042 (Internal) or 999887 (External)" required>
+                </div>
+                <div class="input-group">
+                    <label>EXECUTE INSTANT MONEY TRANSFER ($)</label>
+                    <input type="number" step="0.01" name="amount" placeholder="0.00" required>
+                </div>
+                <button type="submit" class="btn">Send Authorization</button>
+            </form>
+            
+            <hr style="border: 0; border-top: 1px solid #dee2e6; margin: 20px 0;">
+            <div class="footer">Served by Cluster Node Host: {{ hostname }}</div>
         </div>
-    </div>
-</body>
+    </body>
 </html>
 """
 
