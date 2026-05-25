@@ -12,7 +12,7 @@ permissions:
 env:
   PROJECT_ID: "project-3ad3e57a-ebe0-4fe5-b00" 
   REGISTRY_LOCATION: "asia-southeast2" 
-  REGISTRY_URL: "asia-southeast2-docker.pkg.dev/project-3ad3e57a-ebe0-4fe5-b00/secure-banking-images"
+  REGISTRY_URL: "asia-southeast2-docker.pkg.dev/project-3ad3e57a-ebe0-4fe5-b00/lab-images"
   IMAGE_NAME: "banking"
 
 jobs:
