@@ -6,8 +6,8 @@ import logging
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
-# Dynamic environment routing targets
-LEDGER_URL = os.getenv("LEDGER_SERVICE_URL", "http://core-ledger-service:5000/ledger/mutate")
+# Dynamic environment routing targets (Aligned to our core-ledger service port 8082)
+LEDGER_URL = os.getenv("LEDGER_SERVICE_URL", "http://core-ledger-service.app.svc.cluster.local:8082/ledger/mutate")
 
 @app.route("/api/v1/switch/process", methods=["POST"])
 def process_transaction():
@@ -29,7 +29,13 @@ def process_transaction():
 
     # 3. Secure Handshake with Core Ledger
     try:
-        ledger_payload = {"account_id": account_id, "amount": amount, "action": "CREDIT" if amount > 0 else "DEBIT"}
+        # CORRECTION: Hardcoded to "DEBIT" so outgoing money authorizations deduct funds from the ledger database pool
+        ledger_payload = {
+            "account_id": account_id, 
+            "amount": amount, 
+            "action": "DEBIT"
+        }
+        
         response = requests.post(LEDGER_URL, json=ledger_payload, timeout=5)
         
         if response.status_code == 200:
