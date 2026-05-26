@@ -12,7 +12,7 @@ resource "google_compute_global_address" "private_ip_alloc" {
   address_type  = "INTERNAL"
   prefix_length = 16               
   network       = "trusted-vpc"
-  project       = var.project_id
+  project       = var.project_id 
 }
 
 resource "google_service_networking_connection" "private_vpc_connection" {
