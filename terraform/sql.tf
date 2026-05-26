@@ -1,42 +1,59 @@
-# 1. Create a Cloud SQL Database Instance (PostgreSQL 15)
+resource "google_compute_subnetwork" "db_subnet" {
+  name          = "banking_subnet"
+  ip_cidr_range = "10.240.10.0/24" 
+  region        = var.region
+  network       = "default"        
+  project       = var.project_id
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          = "banking_private_ip"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16               
+  network       = "default"        
+  project       = var.project_id
+}
+
+resource "google_service_networking_connection" "private_vpc_connection" {
+  network                 = "default"
+  service                 = "servicenetworking.googleapis.com"
+  reserved_ip_range_names = [google_compute_global_address.private_ip_alloc.name]
+}
+
+
 resource "google_sql_database_instance" "postgres_instance" {
   name             = "banking-db"
   database_version = "POSTGRES_15"
   region           = var.region
   project          = var.project_id
   
-  # For laboratory cost savings, we use a shared-core minimal machine size
+  
+  depends_on = [google_service_networking_connection.private_vpc_connection]
+
   settings {
-    tier = "db-f1-micro"
+    tier = "db-f1-micro" 
     
-    # Secure defaults: private IP within your VPC (requires Private Services Access)
-    # For a simplified lab setup, we can default to public IP with secure authorized networks
     ip_configuration {
-      ipv4_enabled = true
-      
-      # Authorized networks: Allow GKE nodes to securely handshake with the DB
-      # (In enterprise, this would be over a private VPC Interconnect)
-      authorized_networks {
-        name  = "public-internet-access-gate"
-        value = "0.0.0.0/0" # Locked down by user/password authentication
-      }
+      ipv4_enabled    = false 
+      private_network = "projects/${var.project_id}/global/networks/default"
     }
   }
   
-  deletion_protection = false # Allows easy teardown when the lab is finished
+  deletion_protection = false
 }
 
-# 2. Create the Ledger Database Schema container
+
 resource "google_sql_database" "banking_db" {
-  name     = "app_db"
+  name     = "ledger_db"
   instance = google_sql_database_instance.postgres_instance.name
   project  = var.project_id
 }
 
-# 3. Create a highly secure Application Database User
+
 resource "google_sql_user" "db_user" {
-  name     = "app_admin"
+  name     = "ledger_admin"
   instance = google_sql_database_instance.postgres_instance.name
-  password = "P@ssw0rd" # In Item 3.4 we'll inject this via Secret Manager
-  project  = var.project_id 
+  password = "SuperSecureBankingPassword2026!"
+  project  = var.project_id
 }
