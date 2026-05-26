@@ -38,5 +38,5 @@ resource "google_sql_user" "db_user" {
   name     = "app_admin"
   instance = google_sql_database_instance.postgres_instance.name
   password = "P@ssw0rd" # In Item 3.4 we'll inject this via Secret Manager
-  project  = var.project_id
+  project  = var.project_id 
 }
