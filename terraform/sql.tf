@@ -7,7 +7,7 @@ resource "google_compute_subnetwork" "db_subnet" {
 }
 
 resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "banking_private_ip"
+  name          = "banking-private-ip"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16               
@@ -45,14 +45,14 @@ resource "google_sql_database_instance" "postgres_instance" {
 
 
 resource "google_sql_database" "banking_db" {
-  name     = "ledger_db"
+  name     = "ledger-db"
   instance = google_sql_database_instance.postgres_instance.name
   project  = var.project_id
 }
 
 
 resource "google_sql_user" "db_user" {
-  name     = "ledger_admin"
+  name     = "ledger-admin"
   instance = google_sql_database_instance.postgres_instance.name
   password = "SuperSecureBankingPassword2026!"
   project  = var.project_id
