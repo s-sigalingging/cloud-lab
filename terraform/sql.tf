@@ -2,7 +2,7 @@
 resource "google_sql_database_instance" "postgres_instance" {
   name             = "banking-db"
   database_version = "POSTGRES_15"
-  region           = var.registry_location
+  region           = var.region
   project          = var.project_id
   
   # For laboratory cost savings, we use a shared-core minimal machine size
