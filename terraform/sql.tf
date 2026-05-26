@@ -29,7 +29,10 @@ resource "google_sql_database_instance" "postgres_instance" {
   project          = var.project_id
   
   
-  depends_on = [google_service_networking_connection.private_vpc_connection]
+  depends_on = [
+    google_service_networking_connection.private_vpc_connection,
+    google_compute_subnetwork.db_subnet
+  ]
 
   settings {
     tier = "db-f1-micro" 
