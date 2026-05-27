@@ -1,55 +1,84 @@
 from flask import Flask, request, jsonify
-import random
+import psycopg2
+import os
 import logging
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
-# In-memory mock database state for S-Shield accounts
-MOCK_DATABASE = {
-    "ACC-771B0355": 5240.50,
-    "ACC-992A1144": 12500.00
-}
+DB_HOST = os.getenv("DB_HOST", "YOUR_DB_INTERNAL_IP")
+DB_NAME = "ledger_db"
+DB_USER = "ledger_admin"
+DB_PASS = "SuperSecureBankingPassword2026!"
+
+def get_db_connection():
+    return psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
+
+# Bootstrapping function: Builds our database tables automatically if they don't exist yet
+def init_db():
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS accounts (
+                account_id VARCHAR(50) PRIMARY KEY,
+                account_holder VARCHAR(100) NOT NULL,
+                balance NUMERIC(15, 2) NOT NULL CHECK (balance >= 0)
+            );
+        """)
+        # Seed default lab record for Silver if table is fresh
+        cur.execute("""
+            INSERT INTO accounts (account_id, account_holder, balance)
+            VALUES ('ACC-771B0355', 'Silver Sigalingging', 5240.50)
+            ON CONFLICT (account_id) DO NOTHING;
+        """)
+        conn.commit()
+        cur.close()
+        conn.close()
+        logging.info("[LEDGER DATABASE] Tables verified and initialized successfully.")
+    except Exception as e:
+        logging.error(f"[DATABASE INIT FAILURE] Could not initialize tables: {str(e)}")
+
+@app.route("/ledger/balance/<account_id>", methods=["GET"])
+def get_balance(account_id):
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT account_holder, balance FROM accounts WHERE account_id = %s;", (account_id,))
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+        
+        if result:
+            return jsonify({"account_id": account_id, "account_holder": result[0], "balance": float(result[1])}), 200
+        return jsonify({"status": "NOT_FOUND", "error": "Account does not exist"}), 404
+    except Exception as e:
+        return jsonify({"status": "ERROR", "message": str(e)}), 500
 
 @app.route("/ledger/mutate", methods=["POST"])
 def mutate_balance():
     data = request.get_json()
-    
-    account_id = data.get("account_id")
+    account_id = data.get("account_id", "ACC-771B0355")
     amount = float(data.get("amount", 0))
-    action = data.get("action") # CREDIT or DEBIT
-
-    if account_id not in MOCK_DATABASE:
-        logging.error(f"[LEDGER ERROR] Rejection: Account {account_id} not found.")
-        return jsonify({"status": "REJECTED", "reason": "Invalid account metadata"}), 404
-
-    logging.info(f"[LEDGER] Processing data mutation payload. Account: {account_id} | Action: {action} | Impact: ${amount}")
-
-    # Process financial arithmetic safely
-    if action == "DEBIT":
-        if MOCK_DATABASE[account_id] < abs(amount):
-            return jsonify({"status": "REJECTED", "reason": "Insufficient ledger collateral"}), 400
-        MOCK_DATABASE[account_id] -= abs(amount)
-    elif action == "CREDIT":
-        MOCK_DATABASE[account_id] += abs(amount)
-
-    # Generate a cryptographically structured mock transaction ID
-    generated_tx_id = f"TXN-{random.randint(100000, 999999)}"
-    logging.info(f"[LEDGER UPDATE] New Balance for {account_id}: ${MOCK_DATABASE[account_id]:.2f}")
-
-    return jsonify({
-        "tx_id": generated_tx_id,
-        "status": "COMMITTED",
-        "new_balance": MOCK_DATABASE[account_id]
-    }), 200
-
-# Endpoint for frontend UI to fetch the raw data safely via internal query
-@app.route("/ledger/balance/<account_id>", methods=["GET"])
-def get_balance(account_id):
-    if account_id in MOCK_DATABASE:
-        return jsonify({"account_id": account_id, "balance": MOCK_DATABASE[account_id]}), 200
-    return jsonify({"error": "Account not found"}), 404
+    action = data.get("action", "DEBIT")
+    
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        if action == "DEBIT":
+            # Deduct funds securely from the sender row
+            cur.execute("UPDATE accounts SET balance = balance - %s WHERE account_id = %s;", (amount, account_id))
+            
+        conn.commit()
+        cur.close()
+        conn.close()
+        logging.info(f"[LEDGER COMMIT] Successfully debited ${amount} from account {account_id}")
+        return jsonify({"status": "COMMITTED", "tx_id": "TX-SQL-SUCCESS"}), 200
+    except Exception as e:
+        logging.error(f"[LEDGER REJECTION] Transaction rolled back: {str(e)}")
+        return jsonify({"status": "REJECTED", "reason": "Insufficient funds or account error"}), 400
 
 if __name__ == "__main__":
-    # Internal cluster backend port
+    init_db() # Run automatic table generation on boot
     app.run(host="0.0.0.0", port=8082)

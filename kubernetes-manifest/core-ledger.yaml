@@ -16,6 +16,9 @@ spec:
       containers:
       - name: ledger
         image: asia-southeast2-docker.pkg.dev/project-3ad3e57a/lab-images/banking:latest
+        env:
+          - name: DB_HOST
+            value: "10.189.0.3"
         imagePullPolicy: Always
         ports:
         - containerPort: 8082

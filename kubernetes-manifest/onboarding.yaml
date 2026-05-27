@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onboarding
+  namespace: app
+  labels:
+    app: onboarding
+    tier: middle-tier
+spec:
+  replicas: 2 # High-availability multi-pod rollout
+  selector:
+    matchLabels:
+      app: onboarding
+  template:
+    metadata:
+      labels:
+        app: onboarding
+    spec:
+      containers:
+      - name: onboarding-engine
+        # Reuses your standard app repository via your dynamic GitHub deployment workflow
+        image: asia-southeast2-docker.pkg.dev/project-3ad3e57a-ebe0-4fe5-b00/app-repo/banking-app:latest
+        imagePullPolicy: Always
+        
+        # Injects the runtime environment variables required by your Python code
+        env:
+        - name: APP_SCRIPT
+          value: "onboarding.py"
+        - name: DB_HOST
+          value: "10.240.10.3" # <--- IMPORTANT: Double check and swap this with your exact Cloud SQL Private IP!
+          
+        ports:
+        - containerPort: 8083
+          name: api-port
+          
+        # Production Resource Boundaries to protect GKE node pool capacity
+        resources:
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+            
+        # Liveness probe to ensure the Flask framework stays healthy
+        livenessProbe:
+          httpGet:
+            path: /api/v1/onboard
+            port: 8083
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: onboarding
+  namespace: app
+  labels:
+    app: onboarding
+spec:
+  type: ClusterIP # Keeps the onboarding api hidden securely inside the private cluster network
+  ports:
+  - port: 8083
+    targetPort: 8083
+    protocol: TCP
+    name: http
+  selector:
+    app: onboarding
