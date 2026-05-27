@@ -71,7 +71,7 @@ jobs:
           kubectl set image deployment/frontend-channel frontend=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -n app
           kubectl set image deployment/payment-switch switch=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -n app
           kubectl set image deployment/core-ledger ledger=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -n app
-          kubectl set image deployment/onboarding ledger=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -n app
+          kubectl set image deployment/onboarding onboarding=${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -n app
           
           # Monitor rollouts until everything transitions to successfully active
           kubectl rollout status deployment/frontend-channel -n app
