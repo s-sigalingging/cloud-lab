@@ -6,7 +6,7 @@ import logging
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
-DB_HOST = os.getenv("DB_HOST", "YOUR_DB_INTERNAL_IP")
+DB_HOST = os.getenv("app-db", "10.189.0.3")
 DB_NAME = "ledger_db"
 DB_USER = "ledger_admin"
 DB_PASS = "SuperSecureBankingPassword2026!"
