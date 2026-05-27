@@ -3,7 +3,6 @@ resource "google_sql_database_instance" "postgres_instance" {
   name             = "app-db"
   database_version = "POSTGRES_15"
   region           = var.region
-  zone             = var.zone
   project          = var.project_id
   
   # CRITICAL: Wait for the network peering connection to be completely 
