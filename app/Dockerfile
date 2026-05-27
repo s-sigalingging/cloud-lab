@@ -17,4 +17,4 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 8080 8081 8082
 
 # Start the runtime dynamically using your APP_SCRIPT variable
-CMD ["sh", "-c", "python ${APP_SCRIPT}"]
+CMD ["sh", "-c", "python ${APP_SCRIPT}"] 
