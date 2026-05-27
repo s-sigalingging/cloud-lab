@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 # Internal Cluster Routing URLs
 LEDGER_URL = os.getenv("LEDGER_SERVICE_URL", "http://core-ledger-service.app.svc.cluster.local:8082")
 SWITCH_URL = os.getenv("SWITCH_SERVICE_URL", "http://payment-switch-service.app.svc.cluster.local:8081/api/v1/switch/process")
-ONBOARDING_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://onboarding-service.app.svc.cluster.local:8083/api/v1/onboard")
+ONBOARDING_URL = os.getenv("", "http://onboarding.app.svc.cluster.local:8083/api/v1/onboard")
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
