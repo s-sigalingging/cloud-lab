@@ -16,6 +16,10 @@ DB_PASS = "SuperSecureBankingPassword2026!"
 def get_db_connection():
     return psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
 
+@app.route("/healthz", methods=["GET"])
+def health_check():
+    return {"status": "HEALTHY"}, 200
+
 @app.route("/api/v1/onboard", methods=["POST"])
 def onboard_user():
     data = request.get_json()

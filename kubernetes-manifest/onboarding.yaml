@@ -45,7 +45,7 @@ spec:
         # Liveness probe to ensure the Flask framework stays healthy
         livenessProbe:
           httpGet:
-            path: /api/v1/onboard
+            path: /healthz
             port: 8083
           initialDelaySeconds: 15
           periodSeconds: 20
