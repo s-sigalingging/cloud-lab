@@ -7,10 +7,10 @@ import socket
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
-# Internal Cluster Routing URLs
+# Internal GKE Cluster Routing URLs
 LEDGER_URL = os.getenv("LEDGER_SERVICE_URL", "http://core-ledger-service.app.svc.cluster.local:8082")
 SWITCH_URL = os.getenv("SWITCH_SERVICE_URL", "http://payment-switch-service.app.svc.cluster.local:8081/api/v1/switch/process")
-ONBOARDING_URL = os.getenv("", "http://onboarding.app.svc.cluster.local:8083/api/v1/onboard")
+ONBOARDING_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://onboarding.app.svc.cluster.local:8083/api/v1/onboard")
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -64,7 +64,7 @@ HTML_TEMPLATE = """
                 <input type="hidden" name="source_account" value="{{ account_id }}">
                 <div class="input-group">
                     <label>DESTINATION ACCOUNT ID</label>
-                    <input type="text" name="destination_account" placeholder="e.g., 111002 (Internal Ledger Router)" required>
+                    <input type="text" name="destination_account" placeholder="e.g., 111002" required>
                 </div>
                 <div class="input-group">
                     <label>TRANSFER AMOUNT ($)</label>
@@ -104,15 +104,14 @@ HTML_TEMPLATE = """
 
 @app.route("/", methods=["GET"])
 def index():
-    account_id = request.args.get("lookup_id", "ACC-771B0355")
+    account_id = request.args.get("lookup_id", "1119377")  # Swapped default placeholder to your known working ID
     tx_msg = request.args.get("tx_msg")
     onboard_msg = request.args.get("onboard_msg")
     
-    # Query Core Ledger for balance state
     try:
         resp = requests.get(f"{LEDGER_URL}/ledger/balance/{account_id}", timeout=3)
         if resp.status_code == 200:
-            ledger_data = resp.get_json()
+            ledger_data = resp.json()  # Fixed from resp.get_json()
             return render_template_string(HTML_TEMPLATE, 
                                         account_id=account_id,
                                         account_holder=ledger_data["account_holder"],
