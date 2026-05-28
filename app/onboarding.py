@@ -23,46 +23,35 @@ def health_check():
 @app.route("/api/v1/onboard", methods=["POST"])
 def onboard_user():
     data = request.get_json()
-    if not data or "name" not in data or "initial_deposit" not in data:
-        return jsonify({"status": "REJECTED", "error": "Missing onboarding information"}), 400
+    if not data or "name" not in data or "initial_deposit" not in data or "pin" not in data:
+        return jsonify({"status": "REJECTED", "error": "Missing onboarding information or PIN specification"}), 400
         
     name = data["name"]
     initial_deposit = float(data["initial_deposit"])
+    pin = str(data["pin"]).strip()
     
-    # Generate a unique mock account number starting with '111'
     account_id = f"111{random.randint(1000, 9999)}"
-    
-    logging.info(f"[ONBOARDING] Initiating new account creation for {name} with initial deposit: ${initial_deposit}")
     
     try:
         conn = get_db_connection()
         cur = conn.cursor()
         
-        # Write the new client profile straight to Cloud SQL disk storage
+        # Insert account records including the new secure pin column
         cur.execute(
-            "INSERT INTO accounts (account_id, account_holder, balance) VALUES (%s, %s, %s);",
-            (account_id, name, initial_deposit)
+            "INSERT INTO accounts (account_id, account_holder, balance, pin) VALUES (%s, %s, %s, %s);",
+            (account_id, name, initial_deposit, pin)
         )
         
         conn.commit()
         cur.close()
         conn.close()
         
-        logging.info(f"[ONBOARDING SUCCESS] Account {account_id} permanently saved to database.")
         return jsonify({
             "status": "SUCCESS",
             "account_id": account_id,
-            "account_holder": name,
-            "balance": initial_deposit
+            "account_holder": name
         }), 201
         
     except Exception as e:
-        # 1. This forces a complete Python stack trace to dump into 'kubectl logs'
-        logging.error("!!! [ONBOARDING CRITICAL DATABASE FAILURE] !!!")
-        logging.exception(e) 
-        
-        # 2. This sends the REAL database error message back to your frontend template
+        logging.error(f"Onboarding database crash: {str(e)}")
         return jsonify({"status": "ERROR", "reason": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8083)

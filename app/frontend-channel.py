@@ -7,7 +7,6 @@ import socket
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
-# Internal GKE Cluster Routing URLs
 LEDGER_URL = os.getenv("LEDGER_SERVICE_URL", "http://core-ledger-service.app.svc.cluster.local:8082")
 SWITCH_URL = os.getenv("SWITCH_SERVICE_URL", "http://payment-switch-service.app.svc.cluster.local:8081/api/v1/switch/process")
 ONBOARDING_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://onboarding.app.svc.cluster.local:8083/api/v1/onboard")
@@ -16,7 +15,7 @@ HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>S-Shield Neobank Core Portal</title>
+    <title>S-Shield Neobank Secure Core</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; }
         .container { max-width: 900px; margin: 0 auto; display: flex; gap: 20px; }
@@ -26,10 +25,8 @@ HTML_TEMPLATE = """
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-size: 11px; color: #6c757d; margin-bottom: 5px; font-weight: bold; letter-spacing: 0.5px; }
         .input-group input { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-        .btn { background-color: #0D6EFD; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s; }
-        .btn:hover { background-color: #0b5ed7; }
+        .btn { background-color: #0D6EFD; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .btn-success { background-color: #198754; }
-        .btn-success:hover { background-color: #157347; }
         .alert { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; font-weight: bold; }
         .alert-success { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
         .alert-danger { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
@@ -38,34 +35,75 @@ HTML_TEMPLATE = """
 </head>
 <body>
     <div style="text-align:center; margin-bottom: 30px;">
-        <h1 style="color: #212529; margin-bottom: 5px;">🛡️ S-Shield Neobank</h1>
-        <p style="color: #6c757d; margin-top: 0;">GKE Multi-Tier Production Ledger Portal</p>
+        <h1>🛡️ S-Shield Neobank Secure Terminal</h1>
     </div>
 
     <div class="container">
+        {% if not authenticated %}
         <div class="card">
-            <h2>Account Vault View</h2>
+            <h2>Secure Portal Login</h2>
             {% if tx_msg %}
-                <div class="alert {% if 'APPROVED' in tx_msg or 'Active' in tx_msg or 'SUCCESS' in tx_msg %}alert-success{% else %}alert-danger{% endif %}">{{ tx_msg }}</div>
+                <div class="alert alert-danger">{{ tx_msg }}</div>
             {% endif %}
-            
-            <form action="/" method="GET" style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <input type="text" name="lookup_name" placeholder="Enter Full Legal Name to load..." value="{{ search_query }}" style="flex: 1; padding: 10px; border: 1px solid #ced4da; border-radius: 6px;" required>
-                <button type="submit" class="btn" style="width: auto; padding: 0 20px;">Load Account</button>
+            <form action="/login" method="POST">
+                <div class="input-group">
+                    <label>FULL LEGAL NAME</label>
+                    <input type="text" name="login_name" placeholder="Enter registration name..." required>
+                </div>
+                <div class="input-group">
+                    <label>4-DIGIT SECURITY PIN</label>
+                    <input type="password" maxlength="4" name="login_pin" placeholder="****" required>
+                </div>
+                <button type="submit" class="btn">Verify Identity</button>
             </form>
+        </div>
 
-            <p style="color: #6c757d; margin-bottom: 2px; font-size: 11px; font-weight: bold;">ACCOUNT HOLDER</p>
-            <h3 style="margin-top: 0; color: #495057;">{{ account_holder }}</h3>
+        <div class="card" style="border-top: 4px solid #198754;">
+            <h2>Open Corporate Account</h2>
+            {% if onboard_msg %}
+                <div class="alert alert-success">{{ onboard_msg }}</div>
+            {% endif %}
+            <form action="/onboard" method="POST">
+                <div class="input-group">
+                    <label>FULL LEGAL NAME</label>
+                    <input type="text" name="customer_name" placeholder="e.g., Bassura City" required>
+                </div>
+                <div class="input-group">
+                    <label>INITIAL DEPOSIT ($)</label>
+                    <input type="number" step="0.01" name="initial_deposit" placeholder="500.00" required>
+                </div>
+                <div class="input-group">
+                    <label>CHOOSE A 4-DIGIT SECURITY PIN</label>
+                    <input type="password" maxlength="4" name="customer_pin" placeholder="e.g., 1234" required>
+                </div>
+                <button type="submit" class="btn btn-success">Register Vault Profile</button>
+            </form>
+        </div>
 
-            <p style="color: #6c757d; margin-bottom: 2px; font-size: 11px; font-weight: bold;">ASSIGNED ACCOUNT ID</p>
-            <h4 style="margin-top: 0; font-family: monospace; color: #0A58CA;">{{ account_id or "--------" }}</h4>
-            
-            <p style="color: #6c757d; margin-bottom: 2px; font-size: 11px; font-weight: bold;">CURRENT BALANCE</p>
+        {% else %}
+        <div class="card" style="border-top: 4px solid #0D6EFD;">
+            <h2>Authorized Vault View</h2>
+            {% if tx_msg %}
+                <div class="alert alert-success">{{ tx_msg }}</div>
+            {% endif %}
+            <p style="color: #6c757d; font-size: 11px; margin-bottom: 2px;">WELCOME AUTHENTICATED CLIENT</p>
+            <h3>{{ account_holder }}</h3>
+
+            <p style="color: #6c757d; font-size: 11px; margin-bottom: 2px;">ACCOUNT ID</p>
+            <h4 style="font-family: monospace; color: #0A58CA;">{{ account_id }}</h4>
+
+            <p style="color: #6c757d; font-size: 11px; margin-bottom: 2px;">VERIFIED SYSTEM BALANCE</p>
             <div class="balance">${{ "%.2f"|format(balance) }}</div>
             
-            <form action="/transfer" method="POST" style="margin-top: 25px;">
+            <a href="/" style="display:inline-block; margin-top:15px; color:#dc3545; font-weight:bold; text-decoration:none;">🔒 Log Out</a>
+        </div>
+
+        <div class="card">
+            <h2>Authorized Wire Transfer</h2>
+            <form action="/transfer" method="POST">
                 <input type="hidden" name="source_account" value="{{ account_id }}">
-                <input type="hidden" name="search_query" value="{{ search_query }}">
+                <input type="hidden" name="authenticated_name" value="{{ account_holder }}">
+                <input type="hidden" name="authenticated_balance" value="{{ balance }}">
                 <div class="input-group">
                     <label>DESTINATION ACCOUNT ID</label>
                     <input type="text" name="destination_account" placeholder="e.g., 111002" required>
@@ -74,33 +112,14 @@ HTML_TEMPLATE = """
                     <label>TRANSFER AMOUNT ($)</label>
                     <input type="number" step="0.01" name="amount" placeholder="0.00" required>
                 </div>
-                <button type="submit" class="btn">Send Authorization</button>
+                <button type="submit" class="btn">Authorize Core Wire Execution</button>
             </form>
         </div>
-
-        <div class="card" style="border-top: 4px solid #198754;">
-            <h2>Customer Onboarding</h2>
-            {% if onboard_msg %}
-                <div class="alert alert-success">{{ onboard_msg }}</div>
-            {% endif %}
-            <p style="color: #6c757d; font-size: 13px; margin-bottom: 20px;">Instantly register a new bank account row directly into our secure Private Cloud SQL PostgreSQL database instance.</p>
-            
-            <form action="/onboard" method="POST">
-                <div class="input-group">
-                    <label>FULL LEGAL NAME</label>
-                    <input type="text" name="customer_name" placeholder="e.g., Silverius Sigalingging" required>
-                </div>
-                <div class="input-group">
-                    <label>INITIAL OPENING DEPOSIT ($)</label>
-                    <input type="number" step="0.01" name="initial_deposit" placeholder="500.00" required>
-                </div>
-                <button type="submit" class="btn btn-success">Open New Account</button>
-            </form>
-        </div>
+        {% endif %}
     </div>
 
     <div class="footer">
-        Frontend Runtime Node: {{ hostname }} | Database Engine: Cloud SQL Private Peering
+        Node: {{ hostname }} | Infrastructure Security: GKE Multi-Tier Isolated VPC Network
     </div>
 </body>
 </html>
@@ -108,80 +127,67 @@ HTML_TEMPLATE = """
 
 @app.route("/", methods=["GET"])
 def index():
-    search_query = request.args.get("lookup_name", "").strip()
     tx_msg = request.args.get("tx_msg")
     onboard_msg = request.args.get("onboard_msg")
-    
-    if not search_query:
-        return render_template_string(HTML_TEMPLATE, 
-                                    search_query="",
-                                    account_id="",
-                                    account_holder="Please enter your name to pull your secure profile",
-                                    balance=0.0,
-                                    hostname=socket.gethostname(),
-                                    tx_msg=tx_msg or "System Status: Online & Secure",
-                                    onboard_msg=onboard_msg)
+    return render_template_string(HTML_TEMPLATE, authenticated=False, hostname=socket.gethostname(), tx_msg=tx_msg, onboard_msg=onboard_msg)
+
+@app.route("/login", methods=["POST"])
+def login():
+    name = request.form.get("login_name")
+    pin = request.form.get("login_pin")
     
     try:
-        resp = requests.get(f"{LEDGER_URL}/ledger/balance/{search_query}", timeout=3)
+        # Query backend ledger endpoint securely passing name and PIN credentials
+        resp = requests.post(f"{LEDGER_URL}/ledger/login", json={"name": name, "pin": pin}, timeout=3)
         if resp.status_code == 200:
-            ledger_data = resp.json()
-            return render_template_string(HTML_TEMPLATE, 
-                                        search_query=search_query,
-                                        account_id=ledger_data["account_id"],
-                                        account_holder=ledger_data["account_holder"],
-                                        balance=ledger_data["balance"],
+            data = resp.json()
+            return render_template_string(HTML_TEMPLATE,
+                                        authenticated=True,
+                                        account_id=data["account_id"],
+                                        account_holder=data["account_holder"],
+                                        balance=data["balance"],
                                         hostname=socket.gethostname(),
-                                        tx_msg=tx_msg or "Connection Status: Active Secure Link",
-                                        onboard_msg=onboard_msg)
-        else:
-            tx_msg = "ERROR: Registration record details not found for that name."
+                                        tx_msg="Access Authorized. Secure Session Established.")
     except Exception as e:
-        logging.error(f"Ledger connectivity error: {str(e)}")
-        tx_msg = "ERROR: Could not reach central ledger database node"
+        logging.error(f"Login error: {str(e)}")
         
-    return render_template_string(HTML_TEMPLATE, 
-                                  search_query=search_query, 
-                                  account_id="", 
-                                  account_holder="Profile Not Found", 
-                                  balance=0.0, 
-                                  hostname=socket.gethostname(), 
-                                  tx_msg=tx_msg, 
-                                  onboard_msg=onboard_msg)
+    return redirect(url_for("index", tx_msg="ACCESS DENIED: Authentication credentials failed matching criteria."))
 
 @app.route("/transfer", methods=["POST"])
 def transfer():
     source = request.form.get("source_account")
-    search_query = request.form.get("search_query")
+    name = request.form.get("authenticated_name")
+    bal = float(request.form.get("authenticated_balance"))
     dest = request.form.get("destination_account")
-    amount = request.form.get("amount")
+    amount = float(request.form.get("amount"))
     
     try:
         payload = {"account_id": source, "destination_account": dest, "amount": amount}
         resp = requests.post(SWITCH_URL, json=payload, timeout=5)
-        msg = f"TRANSACTION APPROVED: Routed via Payment Switch." if resp.status_code == 200 else f"DECLINED: {resp.json().get('reason', 'Processing error')}"
+        if resp.status_code == 200:
+            return render_template_string(HTML_TEMPLATE, authenticated=True, account_id=source, account_holder=name, balance=bal-amount, hostname=socket.gethostname(), tx_msg="TRANSACTION APPROVED: Wire routed successfully via Payment Switch.")
     except Exception as e:
-        msg = f"GATEWAY ERROR: {str(e)}"
+        logging.error(f"Transfer routing link failed: {str(e)}")
         
-    return redirect(url_for("index", lookup_name=search_query, tx_msg=msg))
+    return render_template_string(HTML_TEMPLATE, authenticated=True, account_id=source, account_holder=name, balance=bal, hostname=socket.gethostname(), tx_msg="DECLINED: Transaction processing gateway network timeout.")
 
 @app.route("/onboard", methods=["POST"])
 def onboard():
     name = request.form.get("customer_name")
     deposit = request.form.get("initial_deposit")
+    pin = request.form.get("customer_pin")
     
     try:
-        payload = {"name": name, "initial_deposit": deposit}
+        payload = {"name": name, "initial_deposit": deposit, "pin": pin}
         resp = requests.post(ONBOARDING_URL, json=payload, timeout=5)
         if resp.status_code == 201:
             data = resp.json()
-            msg = f"SUCCESS! Account {data['account_id']} created for {data['account_holder']}."
-            return redirect(f"/?lookup_name={data['account_holder']}&onboard_msg={msg}")
-            
+            msg = f"SUCCESS! Vault profile created for {data['account_holder']}. You can login now."
+            return redirect(url_for("index", onboard_msg=msg))
     except Exception as e:
-        logging.error(f"Onboarding endpoint error: {str(e)}")
+        logging.error(f"Onboarding error: {str(e)}")
         
-    return redirect(url_for("index", tx_msg="Onboarding service failed to commit user."))
+    return redirect(url_for("index", tx_msg="Registration failed to write configuration parameters."))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
