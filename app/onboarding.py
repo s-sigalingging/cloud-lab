@@ -57,8 +57,12 @@ def onboard_user():
         }), 201
         
     except Exception as e:
-        logging.error(f"[ONBOARDING CRITICAL ERROR] Database commit failed: {str(e)}")
-        return jsonify({"status": "ERROR", "reason": "Database allocation failure"}), 500
+        # 1. This forces a complete Python stack trace to dump into 'kubectl logs'
+        logging.error("!!! [ONBOARDING CRITICAL DATABASE FAILURE] !!!")
+        logging.exception(e) 
+        
+        # 2. This sends the REAL database error message back to your frontend template
+        return jsonify({"status": "ERROR", "reason": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8083)
