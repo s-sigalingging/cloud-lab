@@ -175,8 +175,12 @@ def onboard():
         resp = requests.post(ONBOARDING_URL, json=payload, timeout=5)
         if resp.status_code == 201:
             data = resp.json()
-            msg = f"SUCCESS! Account assigned to {data['account_holder']}."
-            return redirect(url_for("index", lookup_name=data['account_holder'], onboard_msg=msg))
+            # 1. Bring back the explicit Account ID to the success banner!
+            msg = f"SUCCESS! Account {data['account_id']} created for {data['account_holder']}."
+            
+            # 2. Force an exact, clean string match parameter back to the landing page query
+            return redirect(f"/?lookup_name={data['account_holder']}&onboard_msg={msg}")
+            
     except Exception as e:
         logging.error(f"Onboarding endpoint error: {str(e)}")
         
