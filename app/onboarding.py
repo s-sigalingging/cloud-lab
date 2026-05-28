@@ -8,7 +8,7 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
 # Pull the private Cloud SQL IP address from Kubernetes Environment variables
-DB_HOST = os.getenv("DB_HOST", "YOUR_DB_INTERNAL_IP")
+DB_HOST = "10.189.0.3"
 DB_NAME = "ledger_db"
 DB_USER = "ledger_admin"
 DB_PASS = "SuperSecureBankingPassword2026!"
