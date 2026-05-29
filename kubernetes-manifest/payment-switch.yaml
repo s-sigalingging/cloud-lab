@@ -17,6 +17,17 @@ spec:
       - name: switch
         image: asia-southeast2-docker.pkg.dev/project-3ad3e57a/lab-images/banking:latest
         imagePullPolicy: Always
+        volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/var/secrets"
+          readOnly: true
+      volumes:
+      - name: secrets-store-inline
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: "ledger-secrets-provider"
         ports:
         - containerPort: 8081
         env:

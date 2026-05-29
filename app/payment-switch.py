@@ -7,17 +7,41 @@ import requests
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
-# Direct Cloud SQL Private Network Parameters
-DB_HOST = "10.189.0.3"
-DB_NAME = "ledger_db"
-DB_USER = "ledger_admin"
-DB_PASS = "SuperSecureBankingPassword2026!"
-
 # Internal GKE URL for the Core Ledger Service
 LEDGER_URL = os.getenv("LEDGER_SERVICE_URL", "http://core-ledger-service.app.svc.cluster.local:8082")
 
+DB_NAME = os.getenv("DB_NAME", "ledger_db")
+DB_USER = os.getenv("DB_USER", "ledger_admin")
+
+# DYNAMIC LOOKUP: Read the bundled JSON secret file mounted by GKE
+def load_database_credentials():
+    secret_path = "/var/secrets/db_credentials.json"
+    
+    # Default fallbacks for safe local development / docker testing
+    credentials = {
+        "DB_HOST": "127.0.0.1",
+        "DB_PASS": "local_development_password"
+    }
+    
+    if os.path.exists(secret_path):
+        try:
+            with open(secret_path, "r") as f:
+                credentials = json.load(f)
+                logging.info("Successfully loaded database credentials from GSM CSI volume.")
+        except Exception as e:
+            logging.error(f"Failed to read or parse GSM CSI secret volume file: {str(e)}")
+            
+    return credentials
+
+# Clean connection wrapper using our dynamic secret manager values
 def get_db_connection():
-    return psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
+    creds = load_database_credentials()
+    return psycopg2.connect(
+        host=creds.get("DB_HOST"),
+        database=DB_NAME,
+        user=DB_USER,
+        password=creds.get("DB_PASS")
+    )
 
 @app.route("/healthz", methods=["GET"])
 def health_check():

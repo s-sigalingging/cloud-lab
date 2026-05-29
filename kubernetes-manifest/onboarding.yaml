@@ -21,6 +21,17 @@ spec:
         # Reuses your standard app repository via your dynamic GitHub deployment workflow
         image: asia-southeast2-docker.pkg.dev/project-3ad3e57a-ebe0-4fe5-b00/app-repo/banking:latest
         imagePullPolicy: Always
+        volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/var/secrets"
+          readOnly: true
+      volumes:
+      - name: secrets-store-inline
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: "ledger-secrets-provider"
         
         # Injects the runtime environment variables required by your Python code
         env:
