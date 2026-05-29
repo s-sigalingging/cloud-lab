@@ -34,7 +34,7 @@ spec:
           driver: secrets-store-gke.csi.k8s.io
           readOnly: true
           volumeAttributes:
-            secretProviderClass: "ledger-secrets-provider"
+            secretProviderClass: "app-secrets-provider"
 
 ---
 apiVersion: v1
