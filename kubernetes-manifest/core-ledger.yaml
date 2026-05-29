@@ -17,7 +17,7 @@ spec:
       - name: ledger
         image: asia-southeast2-docker.pkg.dev/project-3ad3e57a/lab-images/banking:latest
         imagePullPolicy: Always
-      resources:
+        resources:
           requests:
             cpu: "20m"       
             memory: "64Mi"   
