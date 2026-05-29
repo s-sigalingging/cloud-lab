@@ -19,7 +19,7 @@ spec:
       containers:
       - name: onboarding
         # Reuses your standard app repository via your dynamic GitHub deployment workflow
-        image: asia-southeast2-docker.pkg.dev/project-3ad3e57a-ebe0-4fe5-b00/app-repo/banking-app:latest
+        image: asia-southeast2-docker.pkg.dev/project-3ad3e57a-ebe0-4fe5-b00/app-repo/banking:latest
         imagePullPolicy: Always
         
         # Injects the runtime environment variables required by your Python code
