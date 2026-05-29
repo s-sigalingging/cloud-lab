@@ -4,7 +4,7 @@ metadata:
   name: core-ledger
   namespace: app
 spec:
-  replicas: 1  # Locked to 1 for in-memory state consistency
+  replicas: 1
   selector:
     matchLabels:
       app: core-ledger
@@ -21,6 +21,11 @@ spec:
         - name: secrets-store-inline
           mountPath: "/var/secrets"
           readOnly: true
+        ports:
+        - containerPort: 8082
+        env:
+        - name: APP_SCRIPT
+          value: "core-ledger.py"
       volumes:
       - name: secrets-store-inline
         csi:
@@ -28,11 +33,7 @@ spec:
           readOnly: true
           volumeAttributes:
             secretProviderClass: "ledger-secrets-provider"
-        ports:
-        - containerPort: 8082
-        env:
-        - name: APP_SCRIPT
-          value: "core-ledger.py"
+
 ---
 apiVersion: v1
 kind: Service

@@ -15,20 +15,12 @@ spec:
     spec:
       containers:
       - name: frontend
-        # Make sure this matches your exact Artifact Registry path
         image: asia-southeast2-docker.pkg.dev/project-3ad3e57a/lab-images/banking:latest
         imagePullPolicy: Always
         volumeMounts:
         - name: secrets-store-inline
           mountPath: "/var/secrets"
           readOnly: true
-      volumes:
-      - name: secrets-store-inline
-        csi:
-          driver: secrets-store.csi.k8s.io
-          readOnly: true
-          volumeAttributes:
-            secretProviderClass: "ledger-secrets-provider"
         ports:
         - containerPort: 8080
         env:
@@ -38,6 +30,14 @@ spec:
           value: "http://payment-switch-service.app.svc.cluster.local:8081/api/v1/switch/process"
         - name: LEDGER_BALANCE_URL
           value: "http://core-ledger-service.app.svc.cluster.local:8082/ledger/balance"
+      volumes:
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "ledger-secrets-provider"
+
 ---
 apiVersion: v1
 kind: Service

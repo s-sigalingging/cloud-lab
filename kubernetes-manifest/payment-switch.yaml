@@ -28,7 +28,6 @@ spec:
           value: "payment-switch.py"
         - name: LEDGER_SERVICE_URL
           value: "http://core-ledger-service.app.svc.cluster.local:8082/ledger/mutate"
-
       volumes:
       - name: secrets-store-inline
         csi:
@@ -36,6 +35,7 @@ spec:
           readOnly: true
           volumeAttributes:
             secretProviderClass: "ledger-secrets-provider"
+
 ---
 apiVersion: v1
 kind: Service
