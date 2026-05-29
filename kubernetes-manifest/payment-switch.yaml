@@ -23,11 +23,11 @@ spec:
           readOnly: true
       volumes:
       - name: secrets-store-inline
-      csi:
-        driver: secrets-store.csi.k8s.io
-        readOnly: true
-        volumeAttributes:
-          secretProviderClass: "ledger-secrets-provider"
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "ledger-secrets-provider"
         ports:
         - containerPort: 8081
         env:
