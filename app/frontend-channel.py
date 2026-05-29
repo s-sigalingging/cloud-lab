@@ -157,19 +157,44 @@ def login():
 def transfer():
     source = request.form.get("source_account")
     name = request.form.get("authenticated_name")
-    bal = float(request.form.get("authenticated_balance"))
     dest = request.form.get("destination_account")
-    amount = float(request.form.get("amount"))
+    amount_raw = request.form.get("amount")
+    balance_raw = request.form.get("authenticated_balance")
     
     try:
+        # Clean up any potential formatting symbols or trailing spaces
+        clean_bal = float(str(balance_raw).replace('$', '').replace(',', '').strip())
+        amount = float(str(amount_raw).strip())
+        
+        # Verify if the user actually has enough money before calling the switch
+        if amount > clean_bal:
+            return render_template_string(HTML_TEMPLATE, authenticated=True, account_id=source, account_holder=name, balance=clean_bal, hostname=socket.gethostname(), tx_msg="DECLINED: Insufficient vault funds for wire transfer.")
+            
         payload = {"account_id": source, "destination_account": dest, "amount": amount}
         resp = requests.post(SWITCH_URL, json=payload, timeout=5)
-        if resp.status_code == 200:
-            return render_template_string(HTML_TEMPLATE, authenticated=True, account_id=source, account_holder=name, balance=bal-amount, hostname=socket.gethostname(), tx_msg="TRANSACTION APPROVED: Wire routed successfully via Payment Switch.")
-    except Exception as e:
-        logging.error(f"Transfer routing link failed: {str(e)}")
         
-    return render_template_string(HTML_TEMPLATE, authenticated=True, account_id=source, account_holder=name, balance=bal, hostname=socket.gethostname(), tx_msg="DECLINED: Transaction processing gateway network timeout.")
+        if resp.status_code == 200:
+            new_balance = clean_bal - amount
+            return render_template_string(HTML_TEMPLATE, 
+                                        authenticated=True, 
+                                        account_id=source, 
+                                        account_holder=name, 
+                                        balance=new_balance, 
+                                        hostname=socket.gethostname(), 
+                                        tx_msg=f"TRANSACTION APPROVED: ${amount:.2f} successfully wired to Account {dest}.")
+        else:
+            reason = resp.json().get('reason', 'Processing rejection')
+            return render_template_string(HTML_TEMPLATE, authenticated=True, account_id=source, account_holder=name, balance=clean_bal, hostname=socket.gethostname(), tx_msg=f"DECLINED: {reason}")
+            
+    except Exception as e:
+        logging.error(f"Transfer routing link failed to execute: {str(e)}")
+        # Safe fallback: preserve the original balance if the calculation or parsing catches an anomaly
+        try:
+            fallback_bal = float(str(balance_raw).replace('$', '').replace(',', '').strip())
+        except:
+            fallback_bal = 0.0
+            
+    return render_template_string(HTML_TEMPLATE, authenticated=True, account_id=source, account_holder=name, balance=fallback_bal, hostname=socket.gethostname(), tx_msg="GATEWAY ERROR: Transaction processing system link timeout.")
 
 @app.route("/onboard", methods=["POST"])
 def onboard():
