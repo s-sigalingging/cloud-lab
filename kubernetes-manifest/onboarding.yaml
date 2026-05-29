@@ -7,7 +7,7 @@ metadata:
     app: onboarding
     tier: middle-tier
 spec:
-  replicas: 2 # High-availability multi-pod rollout
+  replicas: 1 # High-availability multi-pod rollout
   selector:
     matchLabels:
       app: onboarding
