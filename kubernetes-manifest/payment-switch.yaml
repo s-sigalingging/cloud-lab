@@ -21,13 +21,6 @@ spec:
         - name: secrets-store-inline
           mountPath: "/var/secrets"
           readOnly: true
-      volumes:
-      - name: secrets-store-inline
-        csi:
-          driver: secrets-store.csi.k8s.io
-          readOnly: true
-          volumeAttributes:
-            secretProviderClass: "ledger-secrets-provider"
         ports:
         - containerPort: 8081
         env:
@@ -35,6 +28,14 @@ spec:
           value: "payment-switch.py"
         - name: LEDGER_SERVICE_URL
           value: "http://core-ledger-service.app.svc.cluster.local:8082/ledger/mutate"
+
+      volumes:
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "ledger-secrets-provider"
 ---
 apiVersion: v1
 kind: Service
