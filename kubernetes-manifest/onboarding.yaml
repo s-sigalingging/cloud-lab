@@ -20,6 +20,13 @@ spec:
       - name: onboarding
         image: asia-southeast2-docker.pkg.dev/project-3ad3e57a-ebe0-4fe5-b00/app-repo/banking:latest
         imagePullPolicy: Always
+      resources:
+          requests:
+            cpu: "20m"       
+            memory: "64Mi"   
+          limits:
+            cpu: "100m"     
+            memory: "128Mi"  
         volumeMounts:
         - name: secrets-store-inline
           mountPath: "/var/secrets"
