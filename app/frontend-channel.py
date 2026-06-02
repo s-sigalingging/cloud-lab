@@ -1,4 +1,5 @@
 from flask import Flask, render_template_string, request, redirect, url_for
+from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 import requests
 import os
 import logging
@@ -124,9 +125,25 @@ HTML_TEMPLATE = """
 </body>
 </html>
 """
+@app.after_request
+def monitor_requests(response):
+    # Log the metric data points dynamically
+    HTTP_REQUESTS_TOTAL.labels(
+        method=request.method, 
+        endpoint=request.path, 
+        status=response.status_code
+    ).inc()
+    return response
+
+
 @app.route('/healthz')
 def healthz():
     return "OK", 200
+
+@app.route('/metrics')
+def metrics():
+    # This generates the raw text metrics formatting required by Prometheus
+    return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
 
 @app.route("/", methods=["GET"])
 def index():
