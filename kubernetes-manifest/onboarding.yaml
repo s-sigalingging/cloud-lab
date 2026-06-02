@@ -31,7 +31,19 @@ spec:
             memory: "64Mi"   
           limits:
             cpu: "100m"     
-            memory: "128Mi"  
+            memory: "128Mi"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8083
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8083
+          initialDelaySeconds: 5
+          periodSeconds: 10      
         volumeMounts:
         - name: secrets-store-inline
           mountPath: "/var/secrets"
@@ -80,3 +92,22 @@ spec:
     name: http
   selector:
     app: onboarding
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: onboarding-hpa
+  namespace: app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: onboarding
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    target:
+      type: Utilization
+      averageUtilization: 70

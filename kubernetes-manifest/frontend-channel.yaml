@@ -29,6 +29,18 @@ spec:
           limits:
             cpu: "100m"     
             memory: "128Mi"  
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10    
         volumeMounts:
         - name: secrets-store-inline
           mountPath: "/var/secrets"
@@ -63,3 +75,22 @@ spec:
     targetPort: 8080
   selector:
     app: frontend-channel
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend-channel-hpa
+  namespace: app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: frontend-channel
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    target:
+      type: Utilization
+      averageUtilization: 70
