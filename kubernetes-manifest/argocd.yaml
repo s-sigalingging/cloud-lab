@@ -11,7 +11,7 @@ spec:
     # REPLACE THIS with your actual GitHub repository URL:
     repoURL: 'https://github.com/s-sigalingging/cloud-lab.git'
     targetRevision: main
-    path: 'kubernetes-manifests' 
+    path: 'kubernetes-manifest' 
   destination:
     server: 'https://kubernetes.default.svc' 
     namespace: app 
