@@ -8,6 +8,12 @@ import socket
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
+HTTP_REQUESTS_TOTAL = Counter(
+    'http_requests_total', 
+    'Total number of HTTP requests processed',
+    ['method', 'endpoint', 'status']
+)
+
 LEDGER_URL = os.getenv("LEDGER_SERVICE_URL", "http://core-ledger-service.app.svc.cluster.local:8082")
 SWITCH_URL = os.getenv("SWITCH_SERVICE_URL", "http://payment-switch-service.app.svc.cluster.local:8081/api/v1/switch/process")
 ONBOARDING_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://onboarding.app.svc.cluster.local:8083/api/v1/onboard")
