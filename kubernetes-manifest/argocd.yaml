@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bank-app
+  namespace: argocd 
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io # Deletes resources from GKE if you delete the app
+spec:
+  project: default
+  source:
+    # REPLACE THIS with your actual GitHub repository URL:
+    repoURL: 'https://github.com/s-sigalingging/cloud-lab.git'
+    targetRevision: main
+    path: 'kubernetes-manifest' 
+  destination:
+    server: 'https://kubernetes.default.svc' 
+    namespace: app 
+  syncPolicy:
+    automated:
+      prune: true     
+      selfHeal: true  
+    syncOptions:
+      - CreateNamespace=true
