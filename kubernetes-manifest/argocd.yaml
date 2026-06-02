@@ -11,7 +11,7 @@ spec:
     # REPLACE THIS with your actual GitHub repository URL:
     repoURL: 'https://github.com/s-sigalingging/cloud-lab.git'
     targetRevision: main
-    path: 'kubernetes-manifest' 
+    path: 'kubernetes-manifests' 
   destination:
     server: 'https://kubernetes.default.svc' 
     namespace: app 
@@ -21,3 +21,25 @@ spec:
       selfHeal: true  
     syncOptions:
       - CreateNamespace=true
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-server-lb
+  namespace: argocd 
+  annotations:
+    cloud.google.com/load-balancer-type: "Internal"
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: argocd-server
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 8080      
