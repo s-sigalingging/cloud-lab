@@ -124,6 +124,9 @@ HTML_TEMPLATE = """
 </body>
 </html>
 """
+@app.route('/healthz')
+def healthz():
+    return "OK", 200
 
 @app.route("/", methods=["GET"])
 def index():
