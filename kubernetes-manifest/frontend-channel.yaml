@@ -106,7 +106,8 @@ metadata:
   annotations:
     cloud.google.com/load-balancer-type: "Internal"
 spec:
-  type: LoadBalancer 
+  type: LoadBalancer
+  loadBalancerIP: "10.50.1.55" 
   selector:
     app: frontend-channel
   ports:
