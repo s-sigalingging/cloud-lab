@@ -17,6 +17,11 @@ spec:
       - name: switch
         image: asia-southeast2-docker.pkg.dev/project-3ad3e57a/lab-images/banking:latest
         imagePullPolicy: Always
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          sed -i '1s/^/import json\n/' $APP_SCRIPT;
+          python3 $APP_SCRIPT;
         resources:
           requests:
             cpu: "20m"       

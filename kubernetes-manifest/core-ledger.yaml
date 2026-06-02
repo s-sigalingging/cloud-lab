@@ -17,6 +17,11 @@ spec:
       - name: ledger
         image: asia-southeast2-docker.pkg.dev/project-3ad3e57a/lab-images/banking:latest
         imagePullPolicy: Always
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          sed -i '1s/^/import json\n/' $APP_SCRIPT;
+          python3 $APP_SCRIPT;
         resources:
           requests:
             cpu: "20m"       
@@ -32,7 +37,7 @@ spec:
         - containerPort: 8082
         env:
         - name: APP_SCRIPT
-          value: "core-ledger.py"
+          value: "core-ledger.py"  
       volumes:
       - name: secrets-store-inline
         csi:

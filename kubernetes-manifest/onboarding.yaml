@@ -18,8 +18,13 @@ spec:
     spec:
       containers:
       - name: onboarding
-        image: asia-southeast2-docker.pkg.dev/project-3ad3e57a-ebe0-4fe5-b00/app-repo/banking:latest
+        image: asia-southeast2-docker.pkg.dev/project-3ad3e57a-ebe0-4fe5-b00/lab-images/banking:latest
         imagePullPolicy: Always
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          sed -i '1s/^/import json\n/' $APP_SCRIPT;
+          python3 $APP_SCRIPT;
         resources:
           requests:
             cpu: "20m"       
@@ -34,8 +39,6 @@ spec:
         env:
         - name: APP_SCRIPT
           value: "onboarding.py"
-        - name: DB_HOST
-          value: "10.240.10.3"
         ports:
         - containerPort: 8083
           name: api-port
