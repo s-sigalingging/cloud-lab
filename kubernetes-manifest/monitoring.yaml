@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: 'https://prometheus-community.github.io/helm-charts'
     chart: kube-prometheus-stack
-    targetRevision: 69.x.x 
+    targetRevision: 69.x.x
     helm:
       values: |
         grafana:
@@ -18,7 +18,16 @@ spec:
             type: LoadBalancer
             annotations:
               cloud.google.com/load-balancer-type: "Internal"
-              loadBalancerIP: "10.50.1.58" 
+        
+        # 🌟 THE FINAL SECURITY BYPASS BLOCK
+        global:
+          rbac:
+            create: true      # Forces Helm to build the cluster access keys
+            pspEnabled: false  # Disables legacy pod security policies that block GKE
+        
+        prometheus:
+          enabled: true
+          prometheusSpec: {}   # Keeps the default statefulset rules active
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
