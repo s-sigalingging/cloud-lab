@@ -85,7 +85,7 @@ metadata:
     app: onboarding
     prometheus.io/scrape: "true"
   annotations:
-    prometheus.io/path: "/healthz"
+    prometheus.io/path: "/metrics"
 spec:
   type: ClusterIP
   ports:
