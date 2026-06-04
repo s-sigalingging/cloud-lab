@@ -65,8 +65,9 @@ metadata:
   name: core-ledger-service
   namespace: app
   labels:
-    app: frontend-channel
+    app: core-ledger
     prometheus.io/scrape: "true"
+    prometheus.io/path: "/healthz"
 spec:
   type: ClusterIP
   ports:
