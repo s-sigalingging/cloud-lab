@@ -64,13 +64,19 @@ kind: Service
 metadata:
   name: core-ledger-service
   namespace: app
+  labels:
+    app: frontend-channel
+    prometheus.io/scrape: "true"
 spec:
   type: ClusterIP
   ports:
-  - port: 8082
+  - name: http-metrics 
+    port: 8082
     targetPort: 8082
+    protocol: TCP
   selector:
     app: core-ledger
+
 
 ---
 apiVersion: autoscaling/v2
