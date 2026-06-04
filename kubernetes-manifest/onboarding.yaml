@@ -85,7 +85,7 @@ metadata:
     app: onboarding
     prometheus.io/scrape: "true"
 spec:
-  ttype: ClusterIP
+  type: ClusterIP
   ports:
   - name: http-metrics 
     port: 8083
