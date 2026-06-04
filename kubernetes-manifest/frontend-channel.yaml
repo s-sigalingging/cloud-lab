@@ -68,11 +68,16 @@ kind: Service
 metadata:
   name: frontend-channel-service
   namespace: app
+  labels:
+    app: frontend-channel
+    prometheus.io/scrape: "true"
 spec:
   type: ClusterIP
   ports:
-  - port: 8080
+  - name: http-metrics 
+    port: 8080
     targetPort: 8080
+    protocol: TCP
   selector:
     app: frontend-channel
 

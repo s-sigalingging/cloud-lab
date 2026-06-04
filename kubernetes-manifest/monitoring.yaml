@@ -27,7 +27,14 @@ spec:
         
         prometheus:
           enabled: true
-          prometheusSpec: {}   # Keeps the default statefulset rules active
+          prometheusSpec: 
+            securityContext:
+              runAsGroup: 65534
+              runAsUser: 65534
+              fsGroup: 65534
+          storageSpec:
+              emptyDir:
+                medium: Memory    
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
@@ -38,3 +45,26 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - SkipDryRunOnMissingResource=true
+
+---
+# 📡 THE DISCOVERY ENGINE FOR YOUR MICROSERVICES
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: microservices-monitor
+  namespace: monitoring
+  labels:
+    # ⚠️ This exact label tells the Helm deployment to trust and scrape this config
+    release: observability-stack 
+spec:
+  # Targets the namespaces where your apps live (e.g., default, production, etc.)
+  namespaceSelector:
+    any: true
+  # 🎯 Matches any Service in your cluster that has a monitoring-enabled label
+  selector:
+    matchLabels:
+      prometheus.io/scrape: "true"
+  endpoints:
+  - port: http-metrics  # Named port on your Kubernetes Services
+    path: /metrics       # Matches your endpoint screenshot path
+    interval: 15s
