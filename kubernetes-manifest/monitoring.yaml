@@ -68,7 +68,7 @@ spec:
   - port: http-metrics  # Named port on your Kubernetes Services
     interval: 15s
     relabelings:
-    - sourceLabels: [__meta_kubernetes_service_label_prometheus_io_path]
+    - sourceLabels: [__meta_kubernetes_service_annotation_prometheus_io_path]
       action: replace
       targetLabel: __metrics_path__
       regex: (.+)
