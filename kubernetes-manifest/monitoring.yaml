@@ -66,5 +66,9 @@ spec:
       prometheus.io/scrape: "true"
   endpoints:
   - port: http-metrics  # Named port on your Kubernetes Services
-    path: /metrics       # Matches your endpoint screenshot path
     interval: 15s
+    relabelings:
+    - sourceLabels: [__meta_kubernetes_service_label_prometheus_io_path]
+      action: replace
+      targetLabel: __metrics_path__
+      regex: (.+)
