@@ -18,9 +18,24 @@ spec:
         image: asia-southeast2-docker.pkg.dev/project-3ad3e57a-ebe0-4fe5-b00/lab-images/banking:latest
         imagePullPolicy: Always
         command: ["/bin/sh", "-c"]
+        command: ["/bin/sh", "-c"]
         args:
         - |
+          # 1. Inject JSON import
           sed -i '1s/^/import json\n/' $APP_SCRIPT;
+          
+          # 2. Append Prometheus server initialization to the bottom of the script
+          echo "" >> $APP_SCRIPT;
+          echo "from prometheus_client import start_http_server" >> $APP_SCRIPT;
+          # Spins up a background telemetry responder thread on the service's port right before running
+          echo "try:" >> $APP_SCRIPT;
+          echo "    start_http_server(int(os.environ.get('PORT', 8080)))" >> $APP_SCRIPT;
+          echo "    print('Telemetry engine online')" >> $APP_SCRIPT;
+          echo "except Exception as e:" >> $APP_SCRIPT;
+          echo "    print('Telemetry skipped or port bound:', e)" >> $APP_SCRIPT;
+          echo "" >> $APP_SCRIPT;
+          
+          # 3. Launch the patched script
           python3 $APP_SCRIPT;
         resources:
           requests:
