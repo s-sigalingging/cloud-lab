@@ -17,6 +17,14 @@ spec:
           enabled: true
           persistence:
             enabled: false # Keeps it in-memory for light lab usage; change to true if you want persistent disks
+          readinessProbe:
+            initialDelaySeconds: 60  # Gives Loki a full minute to build indexes
+            periodSeconds: 10
+            failureThreshold: 6      # Allows 6 consecutive failures before giving up
+          livenessProbe:
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 6  
         promtail:
           enabled: true
           config:
