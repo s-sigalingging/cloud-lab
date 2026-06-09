@@ -18,17 +18,24 @@ spec:
           persistence:
             enabled: false # Keeps it in-memory for light lab usage; change to true if you want persistent disks
           readinessProbe:
-            initialDelaySeconds: 60  # Gives Loki a full minute to build indexes
+            initialDelaySeconds: 90  # Gives Loki a full minute to build indexes
             periodSeconds: 10
             failureThreshold: 6      # Allows 6 consecutive failures before giving up
           livenessProbe:
-            initialDelaySeconds: 60
+            initialDelaySeconds: 90
             periodSeconds: 10
             failureThreshold: 6  
         promtail:
           enabled: true
           config:
             lokiAddress: http://{{ .Release.Name }}:3100/loki/api/v1/push
+            clients:
+              - url: http://{{ .Release.Name }}:3100/loki/api/v1/push
+                timeout: 30s          # Prevents "context deadline exceeded" errors during cold starts
+                backoff_config:
+                  min_period: 5s
+                  max_period: 60s
+                  max_retries: 20
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring # Keeps your observability tools centralized
