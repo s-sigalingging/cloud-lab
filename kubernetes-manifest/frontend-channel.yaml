@@ -68,6 +68,8 @@ spec:
           value: "http://payment-switch-service.app.svc.cluster.local:8081/api/v1/switch/process"
         - name: LEDGER_BALANCE_URL
           value: "http://core-ledger-service.app.svc.cluster.local:8082/ledger/balance"
+        - name: PORT
+          value: "8080"
       volumes:
       - name: secrets-store-inline
         csi:

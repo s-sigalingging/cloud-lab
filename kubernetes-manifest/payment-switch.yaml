@@ -65,6 +65,8 @@ spec:
         env:
         - name: APP_SCRIPT
           value: "payment-switch.py"
+        - name: PORT
+          value: "8081"
         - name: LEDGER_SERVICE_URL
           value: "http://core-ledger-service.app.svc.cluster.local:8082/ledger/mutate"
       volumes:

@@ -65,6 +65,8 @@ spec:
         env:
         - name: APP_SCRIPT
           value: "onboarding.py"
+        - name: PORT
+          value: "8083"
         ports:
         - containerPort: 8083
           name: api-port

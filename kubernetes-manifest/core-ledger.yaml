@@ -63,7 +63,9 @@ spec:
         - containerPort: 8082
         env:
         - name: APP_SCRIPT
-          value: "core-ledger.py"  
+          value: "core-ledger.py"
+        - name: PORT
+          value: "8082"    
       volumes:
       - name: secrets-store-inline
         csi:
