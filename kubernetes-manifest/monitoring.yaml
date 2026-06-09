@@ -45,6 +45,7 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - SkipDryRunOnMissingResource=true
+      - ServerSideApply=true
 
 ---
 # 📡 THE DISCOVERY ENGINE FOR YOUR MICROSERVICES
