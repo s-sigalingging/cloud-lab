@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki-logging-stack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://grafana.github.io/helm-charts'
+    chart: loki-stack
+    targetRevision: 2.x.x  # Deploys Loki and Promtail pre-configured together
+    helm:
+      values: |
+        loki:
+          enabled: true
+          persistence:
+            enabled: false # Keeps it in-memory for light lab usage; change to true if you want persistent disks
+        promtail:
+          enabled: true
+          config:
+            lokiAddress: http://{{ .Release.Name }}:3100/loki/api/v1/push
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring # Keeps your observability tools centralized
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
